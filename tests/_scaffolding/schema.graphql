@@ -1,0 +1,87 @@
+
+enum OrderStatus {
+    QUEUED
+    ACCEPTED
+    PENDING
+    SHIPPED
+    CLOSED
+    CANCELED
+}
+
+type Order {
+    id: ID!
+    dateCreated: Date
+    createdby: ID
+    creator: User
+    client: Client
+    status: OrderStatus
+}
+
+scalar Date
+
+enum UserType {
+    ADMIN
+    CLIENT
+}
+
+interface User {
+    id: ID!
+    name: String
+    email: String!
+    type: UserType
+}
+
+type AdminUser implements User {
+    id: ID!
+    name: String
+    email: String!
+    type: UserType
+    permissions: AdminPermissions
+}
+
+type ClientUser implements User {
+    id: ID!
+    name: String
+    email: String!
+    type: UserType
+    client: Client
+}
+
+type Client {
+    id: ID!
+    name: String
+    address: Address
+    users: [ClientUser]
+    orders: [Order]
+}
+
+type AdminPermissions {
+    create: Boolean
+    cancel: Boolean
+    approve: Boolean
+}
+
+type Address {
+    address1: String
+    address2: String
+    city: String
+    state: String
+    zip: String
+}
+
+type Query {
+    Client(id: ID!): Client
+    User(id: ID!): User
+}
+
+extend type Query {
+    Order(id: ID!): Order
+}
+
+type Mutation {
+    createOrder (
+        by: ID!
+        for: ID!
+    ): Order
+    changeOrderStatus(id: ID!, status: OrderStatus!): Order
+}

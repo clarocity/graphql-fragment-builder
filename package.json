@@ -1,0 +1,34 @@
+{
+  "name": "graphql-fragment-builder",
+  "version": "1.0.0",
+  "description": "Set of utilities for generating graphql fragments from schema.",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap --test-ignore='_scaffolding' ./tests"
+  },
+  "keywords": [
+    "graphql",
+    "apollo",
+    "apolloserver",
+    "fragment",
+    "schema"
+  ],
+  "author": "Jocelyn Badgley <joc@twipped.com> (http://twipped.com/)",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.14.0"
+  },
+  "devDependencies": {
+    "common-tags": "~1.8.0",
+    "eslint": "^5.16.0",
+    "eslint-config-twipped": "3.0.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "graphql": "14.3.0",
+    "tap": "~13.1.7",
+    "tapsuite": "~2.0.1"
+  },
+  "peerDependencies": {
+    "graphql": ">=14.0.0"
+  }
+}
