@@ -15,6 +15,7 @@ type Order {
     creator: User
     client: Client
     status: OrderStatus
+    address: Address
 }
 
 scalar Date

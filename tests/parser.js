@@ -140,8 +140,8 @@ suite('parser', (s) => {
 					},
 				},
 				'implementors': [
-					'ClientUser',
 					'AdminUser',
+					'ClientUser',
 				],
 			},
 			'Order': {
@@ -181,6 +181,12 @@ suite('parser', (s) => {
 						'resolved': true,
 						'primitive': true,
 						'nested': false,
+					},
+					'address': {
+						'type': 'Address',
+						'resolved': true,
+						'primitive': false,
+						'nested': true,
 					},
 				},
 			},

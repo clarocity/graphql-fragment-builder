@@ -1,3 +1,6 @@
 {
   "extends": "twipped/node",
+  "rules": {
+  	"one-var": [ "error",{ "initialized": "never", "uninitialized": "consecutive" }]
+  }
 }
