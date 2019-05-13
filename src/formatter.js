@@ -8,6 +8,8 @@ class Formatter {
 			includeUnresolved: false,
 			includeNested: true,
 			descendResolved: true,
+			descendInterfaces: false,
+			descendInterfaceTypes: false,
 			descendInto: null,
 			ignoreUnknownTypes: false,
 			indentation: '  ',
@@ -50,6 +52,7 @@ class Formatter {
 			ignoreUnknownTypes,
 			indentation,
 			descendResolved,
+			descendInterfaces,
 			descendInto,
 		} = options;
 
@@ -82,8 +85,19 @@ class Formatter {
 				descend = false;
 			}
 
+			// if the type is an interface, and descendInterfaces isn't enabled,
+			// do not descend.
+			if (descend && typeDec.implementors && !descendInterfaces) {
+				descend = (descendInto && descendInto.includes(type));
+			}
+
 			if (descend) {
-				const [ list, needs ] = this._formatFields(type, typeDec.fields, options);
+				let list, needs;
+				if (typeDec.implementors) {
+					[ list, needs ] = this._formatInterface(typeName, typeDec.implementors, options);
+				} else {
+					[ list, needs ] = this._formatFields(typeName, typeDec.fields, options);
+				}
 				requires.push(...needs);
 				return `${name} {\n${this._indent(list, indentation)}\n}`;
 			}
@@ -96,8 +110,51 @@ class Formatter {
 		return [ formatted, requires ];
 	}
 
+	_formatInterface (interfaceName, implementorNames, options) {
+		const {
+			descendInterfaceTypes,
+			descendInto,
+			ignoreUnknownTypes,
+			indentation,
+		} = options;
+
+		const requires = [];
+		const formatted = implementorNames.map((typeName) => {
+			const typeDec = this.typeData[typeName];
+
+			let descend = (
+				(descendInterfaceTypes)
+				|| (descendInto && descendInto.includes(typeName))
+			);
+
+			if (descend && !typeDec) {
+				if (!ignoreUnknownTypes) {
+					throw new Error(`Could not find type "${typeName}" for ${interfaceName}`);
+				}
+
+				descend = false;
+			}
+
+			if (descend) {
+				const [ list, needs ] = this._formatFields(typeName, typeDec.fields, options);
+				requires.push(...needs);
+				return `... on ${typeName} {\n${this._indent(list, indentation)}\n}`;
+			}
+
+			requires.push(typeName);
+			return `... on ${typeName} { ... ${typeName} }`;
+		}).filter(Boolean).join('\n');
+
+		return [ formatted, requires ];
+	}
+
 	_formatType (typeName, typeDec, options) {
-		var [ list, requires ] = this._formatFields(typeName, typeDec.fields, options);
+		var list, requires;
+		if (typeDec.implementors) {
+			[ list, requires ] = this._formatInterface(typeName, typeDec.implementors, options);
+		} else {
+			[ list, requires ] = this._formatFields(typeName, typeDec.fields, options);
+		}
 		list = this._indent(list, options.indentation);
 		// console.log(list);
 		const schema = `fragment ${typeName} on ${typeName} {\n${list}\n}`;

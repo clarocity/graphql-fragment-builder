@@ -106,7 +106,10 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 		var interface = fragments[interfaceName];
 		if (!interface) return;
 
-		if (interface.implementors) interface.implementors.push(implementorName);
+		if (interface.implementors) {
+			interface.implementors.push(implementorName);
+			interface.implementors.sort();
+		}
 		else interface.implementors = [ implementorName ];
 	});
 
