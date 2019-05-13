@@ -250,4 +250,216 @@ suite('parser', (s) => {
 			},
 		});
 	});
+
+	s.test('parses schema without resolvers', async (t) => {
+		t.plan(1);
+		const result = parser(typeDefs);
+
+		t.deepEqual(result, {
+			'Client': {
+				fields: {
+					'id': {
+						'type': 'ID',
+						'primitive': true,
+						'nested': false,
+					},
+					'name': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'address': {
+						'type': 'Address',
+						'primitive': false,
+						'nested': true,
+					},
+					'users': {
+						'type': 'ClientUser',
+						'primitive': false,
+						'nested': true,
+					},
+					'orders': {
+						'type': 'Order',
+						'primitive': false,
+						'nested': true,
+					},
+				},
+			},
+			'Address': {
+				fields: {
+					'address1': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'address2': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'city': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'state': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'zip': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+				},
+			},
+			'ClientUser': {
+				fields: {
+					'id': {
+						'type': 'ID',
+						'primitive': true,
+						'nested': false,
+					},
+					'name': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'email': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'type': {
+						'type': 'UserType',
+						'primitive': true,
+						'nested': false,
+					},
+					'client': {
+						'type': 'Client',
+						'primitive': false,
+						'nested': true,
+					},
+				},
+				implements: [ 'User' ],
+			},
+			'User': {
+				'fields': {
+					'id': {
+						'type': 'ID',
+						'primitive': true,
+						'nested': false,
+					},
+					'name': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'email': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'type': {
+						'type': 'UserType',
+						'primitive': true,
+						'nested': false,
+					},
+				},
+				'implementors': [
+					'AdminUser',
+					'ClientUser',
+				],
+			},
+			'Order': {
+				fields: {
+					'id': {
+						'type': 'ID',
+						'primitive': true,
+						'nested': false,
+					},
+					'dateCreated': {
+						'type': 'Date',
+						'primitive': true,
+						'nested': false,
+					},
+					'createdby': {
+						'type': 'ID',
+						'primitive': true,
+						'nested': false,
+					},
+					'creator': {
+						'type': 'User',
+						'primitive': false,
+						'nested': true,
+					},
+					'client': {
+						'type': 'Client',
+						'primitive': false,
+						'nested': true,
+					},
+					'status': {
+						'type': 'OrderStatus',
+						'primitive': true,
+						'nested': false,
+					},
+					'address': {
+						'type': 'Address',
+						'primitive': false,
+						'nested': true,
+					},
+				},
+			},
+			'AdminUser': {
+				fields: {
+					'id': {
+						'type': 'ID',
+						'primitive': true,
+						'nested': false,
+					},
+					'name': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'email': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'type': {
+						'type': 'UserType',
+						'primitive': true,
+						'nested': false,
+					},
+					'permissions': {
+						'type': 'AdminPermissions',
+						'primitive': false,
+						'nested': true,
+					},
+				},
+				implements: [ 'User' ],
+			},
+			'AdminPermissions': {
+				fields: {
+					'create': {
+						'type': 'Boolean',
+						'primitive': true,
+						'nested': false,
+					},
+					'cancel': {
+						'type': 'Boolean',
+						'primitive': true,
+						'nested': false,
+					},
+					'approve': {
+						'type': 'Boolean',
+						'primitive': true,
+						'nested': false,
+					},
+				},
+			},
+		});
+	});
 });

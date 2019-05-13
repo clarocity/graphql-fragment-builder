@@ -76,11 +76,14 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 
 			const details = {
 				type: fieldType,
-				resolved: resolvers ? !(resolvers[typeName] && typeof resolvers[typeName][fieldName] === 'function') : null,
 				primitive: (constructorName === 'GraphQLScalarType' || constructorName === 'GraphQLEnumType'),
 				nested: (constructorName === 'GraphQLObjectType' || constructorName === 'GraphQLInterfaceType'),
 				// constructorName,
 			};
+
+			if (resolvers) {
+				details.resolved = !(resolvers[typeName] && typeof resolvers[typeName][fieldName] === 'function');
+			}
 
 			return [ fieldName, details ];
 		});

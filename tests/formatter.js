@@ -177,3 +177,30 @@ suite('formatter', (s) => {
 	});
 
 });
+
+suite('formatter without resolvers', (s) => {
+	const parsed = parser(typeDefs);
+
+	s.test('include unresolved, exclude resolved', async (t) => {
+		const formatter = new Formatter(parsed, {
+			includeUnresolved: true,
+			includeResolved: false,
+		});
+		const result = formatter.format('Order');
+		const schema = stripIndent`
+			fragment Order on Order {
+			  id
+			  dateCreated
+			  createdby
+			  creator { ... User }
+			  client { ... Client }
+			  status
+			  address { ... Address }
+			}
+		`;
+		t.equals(result.name, 'Order', 'name matches');
+		t.equals(result.schema, schema, 'schema matches');
+		t.deepEquals(result.requires, [ 'User', 'Client', 'Address' ], 'requirement matches');
+	});
+
+});
