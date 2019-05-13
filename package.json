@@ -4,7 +4,7 @@
   "description": "Set of utilities for generating graphql fragments from schema.",
   "main": "index.js",
   "scripts": {
-    "test": "tap --test-ignore='_scaffolding' ./tests"
+    "test": "tap"
   },
   "keywords": [
     "graphql",
@@ -30,5 +30,14 @@
   },
   "peerDependencies": {
     "graphql": ">=14.0.0"
+  },
+  "tap": {
+    "test-ignore": "_scaffolding"
+  },
+  "nyc": {
+    "exclude": [
+      "src/reduce.js",
+      "tests"
+    ]
   }
 }

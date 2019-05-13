@@ -6,6 +6,7 @@ const parser = require('../src/parser');
 suite('parser', (s) => {
 
 	s.test('parses schema & resolvers', async (t) => {
+		t.plan(1);
 		const result = parser(typeDefs, resolvers);
 
 		t.deepEqual(result, {
