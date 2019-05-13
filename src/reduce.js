@@ -30,8 +30,8 @@ module.exports = exports = function objectReduce (collection, cb) {
 
 	if (collection instanceof Set) {
 		let i = 0;
-		for (let item of collection) {
-			if (!iterate(item, i, i)) break;
+		for (const item of collection) {
+			if (!iterate(item, i, i++)) break;
 		}
 		return result;
 	}

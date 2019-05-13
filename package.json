@@ -4,7 +4,8 @@
   "description": "Set of utilities for generating graphql fragments from schema.",
   "main": "index.js",
   "scripts": {
-    "test": "tap"
+    "test": "tap",
+    "lint": "eslint ./ --fix"
   },
   "keywords": [
     "graphql",
