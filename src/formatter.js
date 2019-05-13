@@ -109,7 +109,7 @@ class Formatter {
 	}
 
 	formatAll (options) {
-		options = { ...this.options, options };
+		options = { ...this.options, ...options };
 		return objectReduce(this.typeData, (typeFields, typeName) => [
 			typeName,
 			this._formatType(typeName, typeFields, options),
@@ -117,7 +117,7 @@ class Formatter {
 	}
 
 	format (typeName, options) {
-		options = { ...this.options, options };
+		options = { ...this.options, ...options };
 		return this._formatType(typeName, this.typeData[typeName], options);
 	}
 }
