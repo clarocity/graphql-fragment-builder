@@ -31,23 +31,63 @@ suite('formatter', (s) => {
 		t.deepEquals(result.requires, [], 'requirement matches');
 	});
 
-	s.test('parses with base options', async (t) => {
+	s.test('parses with type overrides', async (t) => {
 		const formatter = new Formatter(parsed, {
 			descendResolved: false,
+			Order: {
+				prefix: 'OP_',
+				suffix: '_OS',
+			},
+			Address: {
+				prefix: 'AP_',
+				suffix: '_AS',
+			},
 		});
 		const result = formatter.format('Order');
 		const schema = stripIndent`
-			fragment Order on Order {
+			fragment OP_Order_OS on Order {
 			  id
 			  dateCreated
 			  createdby
 			  status
-			  address { ... Address }
+			  address { ... AP_Address_AS }
 			}
 		`;
-		t.equals(result.name, 'Order', 'name matches');
+		t.equals(result.name, 'OP_Order_OS', 'name matches');
 		t.equals(result.schema, schema, 'schema matches');
-		t.deepEquals(result.requires, [ 'Address' ], 'requirement matches');
+		t.deepEquals(result.requires, [ 'Address=AP_Address_AS' ], 'requirement matches');
+	});
+
+	s.test('parses with deep type overrides', async (t) => {
+		const formatter = new Formatter(parsed, {
+			descendResolved: false,
+			Order: {
+				prefix: 'OP_',
+				suffix: '_OS',
+				Address: {
+					prefix: null,
+					suffix: null,
+					name: 'ADDRESS',
+				},
+			},
+			Address: {
+				prefix: 'AP_',
+				suffix: '_AS',
+			},
+		});
+		const result = formatter.format('Order');
+		const schema = stripIndent`
+			fragment OP_Order_OS on Order {
+			  id
+			  dateCreated
+			  createdby
+			  status
+			  address { ... ADDRESS }
+			}
+		`;
+		t.equals(result.name, 'OP_Order_OS', 'name matches');
+		t.equals(result.schema, schema, 'schema matches');
+		t.deepEquals(result.requires, [ 'Address=ADDRESS' ], 'requirement matches');
 	});
 
 	s.test('parses with invocation options', async (t) => {
@@ -68,6 +108,25 @@ suite('formatter', (s) => {
 		t.equals(result.name, 'Order', 'name matches');
 		t.equals(result.schema, schema, 'schema matches');
 		t.deepEquals(result.requires, [], 'requirement matches');
+	});
+
+	s.test('parses with deep options', async (t) => {
+		const formatter = new Formatter(parsed, {
+			descendResolved: false,
+		});
+		const result = formatter.format('Order');
+		const schema = stripIndent`
+			fragment Order on Order {
+			  id
+			  dateCreated
+			  createdby
+			  status
+			  address { ... Address }
+			}
+		`;
+		t.equals(result.name, 'Order', 'name matches');
+		t.equals(result.schema, schema, 'schema matches');
+		t.deepEquals(result.requires, [ 'Address' ], 'requirement matches');
 	});
 
 	s.test('include unresolved, exclude resolved', async (t) => {

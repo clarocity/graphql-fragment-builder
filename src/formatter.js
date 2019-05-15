@@ -1,34 +1,81 @@
 
 const objectReduce = require('./reduce');
 
-class Formatter {
-	constructor (typeData, options) {
-		this.options = {
-			includeResolved: true,
-			includeUnresolved: false,
-			includeNested: true,
-			descendResolved: true,
-			descendInterfaces: false,
-			descendInterfaceTypes: false,
-			descendInto: null,
-			ignoreUnknownTypes: false,
-			indentation: '  ',
+class Options {
+	constructor (base) {
+		this.base = { ...Options.defaults, ...base };
+		this.invocation = null;
+		this.tiers = [];
+		this.attributes = this.build();
+	}
 
-			...options,
-		};
+	invoked (opts) {
+		this.invocation = opts;
+		this.tiers = [];
+		this.attributes = this.build();
+		return this;
+	}
 
-		if (options && options.descendInto && !Array.isArray(options.descendInto)) {
+	descend (tier, cb) {
+		this.tiers.push(tier);
+		this.attributes = this.build();
+		if (typeof cb === 'function') {
+			const r = cb(this.attributes);
+			this.ascend();
+			return r;
+		}
+		return this;
+	}
+
+	ascend () {
+		this.tiers.pop();
+		this.attributes = this.build();
+		return this;
+	}
+
+	build () {
+		const result = { ...this.base, ...this.invocation };
+
+		this.tiers.forEach((typeName) => {
+			if (result[typeName]) Object.assign(result, result[typeName]);
+		});
+
+		if (result.descendInto && !Array.isArray(result.descendInto)) {
 			throw new TypeError('The descendInto option must either be falsy or an array.');
 		}
 
-		if (options && options.indentation && typeof options.indentation !== 'string') {
+		if (result.indentation && typeof result.indentation !== 'string') {
 			throw new TypeError('The indentation option must be a string');
 		}
 
+		return result;
+	}
+}
+
+Options.defaults = {
+	includeResolved: true,
+	includeUnresolved: false,
+	includeNested: true,
+	descendResolved: true,
+	descendInterfaces: false,
+	descendInterfaceTypes: false,
+	descendInto: null,
+	ignoreUnknownTypes: false,
+	indentation: '  ',
+	prefix: '',
+	suffix: '',
+	name: null,
+};
+
+class Formatter {
+
+	constructor (typeData, options) {
+		this.options = new Options(options);
 		this.typeData = typeData;
 	}
 
-	_indent (input, indentation) {
+	_indent (input) {
+		const { indentation } = this.options.attributes;
 		if (!indentation) return input;
 
 		const isString = (typeof input === 'string');
@@ -44,26 +91,27 @@ class Formatter {
 		return output;
 	}
 
-	_formatFields (typeName, fields, options) {
+	_formatFields (typeName, fields) {
 		const {
 			includeResolved,
 			includeUnresolved,
 			includeNested,
 			ignoreUnknownTypes,
-			indentation,
 			descendResolved,
 			descendInterfaces,
 			descendInto,
-		} = options;
+		} = this.options.attributes;
 
 		const requires = [];
-		const formatted = Object.keys(fields).map((name) => {
-			const { type, resolved, nested } = fields[name];
-			if (resolved && !includeResolved) return null;
-			if (!resolved && !includeUnresolved) return null;
+		const formatted = Object.keys(fields).map((fieldName) => {
+			const { type, resolved, nested } = fields[fieldName];
+			if (resolved !== undefined) {
+				if (resolved && !includeResolved) return null;
+				if (!resolved && !includeUnresolved) return null;
+			}
 
 			if (!nested) {
-				return name;
+				return fieldName;
 			}
 
 			if (!includeNested) return null;
@@ -79,7 +127,7 @@ class Formatter {
 
 			if (descend && !typeDec) {
 				if (!ignoreUnknownTypes) {
-					throw new Error(`Could not find type "${type}" for ${typeName}.${name}`);
+					throw new Error(`Could not find type "${type}" for ${typeName}.${fieldName}`);
 				}
 
 				descend = false;
@@ -92,31 +140,35 @@ class Formatter {
 			}
 
 			if (descend) {
-				let list, needs;
-				if (typeDec.implementors) {
-					[ list, needs ] = this._formatInterface(typeName, typeDec.implementors, options);
-				} else {
-					[ list, needs ] = this._formatFields(typeName, typeDec.fields, options);
-				}
+				const [ list, needs ] = this.options.descend(type, () => {
+					if (typeDec.implementors) {
+						return this._formatInterface(type, typeDec.implementors);
+					}
+
+					return this._formatFields(type, typeDec.fields);
+				});
+
 				requires.push(...needs);
-				return `${name} {\n${this._indent(list, indentation)}\n}`;
+				return `${fieldName} {\n${this._indent(list)}\n}`;
 			}
 
-			requires.push(type);
-			return `${name} { ... ${type} }`;
+			return this.options.descend(type, ({ prefix, name, suffix }) => {
+				const fragmentName = `${prefix || ''}${name || type}${suffix || ''}`;
+				requires.push(fragmentName === type ? type : `${type}=${fragmentName}`);
+				return `${fieldName} { ... ${fragmentName} }`;
+			});
 
 		}).filter(Boolean).join('\n');
 
 		return [ formatted, requires ];
 	}
 
-	_formatInterface (interfaceName, implementorNames, options) {
+	_formatInterface (interfaceName, implementorNames) {
 		const {
 			descendInterfaceTypes,
 			descendInto,
 			ignoreUnknownTypes,
-			indentation,
-		} = options;
+		} = this.options.attributes;
 
 		const requires = [];
 		const formatted = implementorNames.map((typeName) => {
@@ -136,47 +188,67 @@ class Formatter {
 			}
 
 			if (descend) {
-				const [ list, needs ] = this._formatFields(typeName, typeDec.fields, options);
+				const [ list, needs ] = this.options.descend(typeName, () =>
+					this._formatFields(typeName, typeDec.fields)
+				);
+
 				requires.push(...needs);
-				return `... on ${typeName} {\n${this._indent(list, indentation)}\n}`;
+				return `... on ${typeName} {\n${this._indent(list)}\n}`;
 			}
 
 			requires.push(typeName);
-			return `... on ${typeName} { ... ${typeName} }`;
+			const fragmentName = this.options.descend(typeName, ({ prefix, name, suffix }) =>
+				`${prefix || ''}${name || typeName}${suffix || ''}`
+			);
+
+			return `... on ${typeName} { ... ${fragmentName} }`;
 		}).filter(Boolean).join('\n');
 
 		return [ formatted, requires ];
 	}
 
-	_formatType (typeName, typeDec, options) {
-		var list, requires;
-		if (typeDec.implementors) {
-			[ list, requires ] = this._formatInterface(typeName, typeDec.implementors, options);
-		} else {
-			[ list, requires ] = this._formatFields(typeName, typeDec.fields, options);
-		}
-		list = this._indent(list, options.indentation);
-		// console.log(list);
-		const schema = `fragment ${typeName} on ${typeName} {\n${list}\n}`;
+	_formatType (typeName, typeDec) {
+		var [ list, requires ] = (() => {
+			if (typeDec.implementors) {
+				return this._formatInterface(typeName, typeDec.implementors);
+			}
+
+			return this._formatFields(typeName, typeDec.fields);
+		})();
+
+		list = this._indent(list);
+
+		const { prefix, name, suffix } = this.options.attributes;
+		const fragmentName = `${prefix || ''}${name || typeName}${suffix || ''}`;
+
+		const schema = `fragment ${fragmentName} on ${typeName} {\n${list}\n}`;
 		return {
-			name: typeName,
+			name: fragmentName,
 			schema,
 			requires,
 		};
 	}
 
 	formatAll (options) {
-		options = { ...this.options, ...options };
-		return objectReduce(this.typeData, (typeFields, typeName) => [
-			typeName,
-			this._formatType(typeName, typeFields, options),
-		]);
+		this.options.invoked(options);
+		return objectReduce(this.typeData, (typeFields, typeName) =>
+			this.options.descend(typeName, () =>
+				[
+					typeName,
+					this._formatType(typeName, typeFields),
+				]
+			)
+		);
 	}
 
 	format (typeName, options) {
-		options = { ...this.options, ...options };
-		return this._formatType(typeName, this.typeData[typeName], options);
+		this.options.invoked(options);
+		return this.options.descend(typeName, () =>
+			this._formatType(typeName, this.typeData[typeName])
+		);
 	}
 }
+
+Formatter.defaultOptions = Options.defaults;
 
 module.exports = exports = Formatter;
