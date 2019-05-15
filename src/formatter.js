@@ -34,10 +34,11 @@ class Options {
 	}
 
 	build () {
-		const result = { ...this.base, ...this.invocation };
+		const { levels, ...result } = { ...this.base, ...this.invocation };
 
-		this.tiers.forEach((typeName) => {
-			if (result[typeName]) Object.assign(result, result[typeName]);
+		this.tiers.forEach((typeName, i) => {
+			const level = levels && levels[i] || {};
+			if (result[typeName]) Object.assign(result, result[typeName], level);
 		});
 
 		if (result.descendInto && !Array.isArray(result.descendInto)) {
@@ -62,8 +63,8 @@ Options.defaults = {
 	descendInto: null,
 	ignoreUnknownTypes: false,
 	indentation: '  ',
-	prefix: '',
-	suffix: '',
+	prefix: null,
+	suffix: null,
 	name: null,
 };
 
@@ -152,8 +153,8 @@ class Formatter {
 				return `${fieldName} {\n${this._indent(list)}\n}`;
 			}
 
-			return this.options.descend(type, ({ prefix, name, suffix }) => {
-				const fragmentName = `${prefix || ''}${name || type}${suffix || ''}`;
+			return this.options.descend(type, ({ alias, prefix, name, suffix }) => {
+				const fragmentName = alias || `${prefix || ''}${name || type}${suffix || ''}`;
 				requires.push(fragmentName === type ? type : `${type}=${fragmentName}`);
 				return `${fieldName} { ... ${fragmentName} }`;
 			});
@@ -218,8 +219,8 @@ class Formatter {
 
 		list = this._indent(list);
 
-		const { prefix, name, suffix } = this.options.attributes;
-		const fragmentName = `${prefix || ''}${name || typeName}${suffix || ''}`;
+		const { alias, prefix, name, suffix } = this.options.attributes;
+		const fragmentName = alias || `${prefix || ''}${name || typeName}${suffix || ''}`;
 
 		const schema = `fragment ${fragmentName} on ${typeName} {\n${list}\n}`;
 		return {
