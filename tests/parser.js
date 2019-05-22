@@ -248,6 +248,16 @@ suite('parser', (s) => {
 					},
 				},
 			},
+			'Unused': {
+				'fields': {
+					'nothing': {
+						'type': 'Int',
+						'primitive': true,
+						'nested': false,
+						resolved: true,
+					},
+				},
+			},
 		});
 	});
 
@@ -455,6 +465,15 @@ suite('parser', (s) => {
 					},
 					'approve': {
 						'type': 'Boolean',
+						'primitive': true,
+						'nested': false,
+					},
+				},
+			},
+			'Unused': {
+				'fields': {
+					'nothing': {
+						'type': 'Int',
 						'primitive': true,
 						'nested': false,
 					},

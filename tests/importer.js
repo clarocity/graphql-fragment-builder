@@ -12,6 +12,7 @@ suite('formatter', (s) => {
 
 	s.test('with defaults', async (t) => {
 		const fragmenter = importer(formatter);
+
 		const result = stripIndent`
 			{
 				order(id: 5) {
@@ -44,11 +45,13 @@ suite('formatter', (s) => {
 		t.strictEqual(result, expected, 'query had contents');
 	});
 
-	s.test('with hash', async (t) => {
+	s.test('with invocation options', async (t) => {
 		const fragmenter = importer(formatter);
 		const fragmentRef = fragmenter('Order', { hash: true });
-
 		const fragmentName = fragmentRef.replace('... ', '');
+		const fragmentHash = fragmentName.slice(-6);
+
+
 		const expectedFragment = stripIndent`
 			fragment ${fragmentName} on Order {
 			  id
@@ -65,35 +68,94 @@ suite('formatter', (s) => {
 			}
 		`;
 
-		t.strictEqual(fragmentName.slice(0, -4), 'Order');
+		t.strictEqual(fragmentName.slice(0, -6), 'Order');
+		t.strictEqual(fragmentHash, 'A6A72E');
 		t.strictEqual(fragmenter.fragments, expectedFragment, 'fragments matched');
 	});
 
-	s.test('with hashAll', async (t) => {
+	s.test('with no descend', async (t) => {
 		const fragmenter = importer(formatter);
-		const fragmentRef = fragmenter('Order', { hashAll: true, descendResolved: false });
+		const fragmentRef = fragmenter('Order', { descendResolved: false });
 
 		const fragmentName = fragmentRef.replace('... ', '');
-		const hash = fragmentName.slice(-4);
+		const fragmentHash = fragmentName.slice(-6);
 
 		const expectedFragment = stripIndent`
-			fragment ${fragmentName} on Order {
-			  id
-			  dateCreated
-			  createdby
-			  status
-			  address { ... Address${hash} }
-			}
-			fragment Address${hash} on Address {
+			fragment Address${fragmentHash} on Address {
 			  address1
 			  address2
 			  city
 			  state
 			  zip
 			}
+			fragment ${fragmentName} on Order {
+			  id
+			  dateCreated
+			  createdby
+			  status
+			  address { ... Address${fragmentHash} }
+			}
 		`;
 
-		t.strictEqual(fragmentName, 'Order' + hash);
+		t.strictEqual(fragmentName, 'Order' + fragmentHash);
 		t.strictEqual(fragmenter.fragments, expectedFragment, 'fragments matched');
+	});
+
+	s.test('deep fragmenting with renaming', async (t) => {
+		const formatter = new Formatter(parsed, {
+			// disable all automatic inclusions
+			includeResolved: false,
+			includeUnresolved: false,
+			descendResolved: false,
+
+			Order: {
+				include: [ 'client', 'address' ],
+				foo: 'bar',
+				Client: {
+					name: 'OrderClient',
+					include: [ 'name' ],
+				},
+			},
+			Address: {
+				includeResolved: true,
+			},
+			Client: {
+				descendResolved: true,
+				include: [ 'name', 'address' ],
+			},
+		});
+		const fragmenter = importer(formatter, { hash: false });
+		const fragmentRefs = [ fragmenter('Order'), fragmenter('Client') ];
+
+		const expectedFragments = stripIndent`
+			fragment OrderClient on Client {
+			  name
+			}
+			fragment Address on Address {
+			  address1
+			  address2
+			  city
+			  state
+			  zip
+			}
+			fragment Order on Order {
+			  client { ... OrderClient }
+			  address { ... Address }
+			}
+			fragment Client on Client {
+			  name
+			  address {
+			    address1
+			    address2
+			    city
+			    state
+			    zip
+			  }
+			}
+
+		`;
+
+		t.deepEqual(fragmentRefs, [ '... Order', '... Client' ], 'fragment references');
+		t.strictEqual(fragmenter.fragments, expectedFragments, 'fragment schema');
 	});
 });

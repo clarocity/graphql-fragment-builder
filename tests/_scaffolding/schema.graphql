@@ -75,6 +75,10 @@ type Query {
     User(id: ID!): User
 }
 
+type Unused {
+    nothing: Int
+}
+
 extend type Query {
     Order(id: ID!): Order
 }

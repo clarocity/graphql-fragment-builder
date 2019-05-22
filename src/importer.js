@@ -1,46 +1,35 @@
 
-var crypto = require('crypto');
-var Formatter = require('./formatter.js');
+var Options = require('./options.js');
 
-function hashops (input) {
-	return crypto.createHash('sha256')
-		.update(JSON.stringify(input))
-		.digest('hex')
-		.substr(0, 4)
-		.toUpperCase();
-}
+module.exports = exports = function (formatter, { hash } = {}) {
 
+	const results = {};
+	const dependencies = {};
 
-module.exports = exports = function (formatter, topOptions) {
-	topOptions = { ...Formatter.defaultOptions, ...topOptions };
-
-	const included = {};
-	function inline (typeName, { hash, hashAll, ...options } = {}) {
-		options = { ...topOptions, ...options };
-
-		if (hashAll) {
-			options.suffix = hashops(options);
-		} else if (hash) {
-			typeName += '=' + typeName + hashops(options);
+	function inline (typeName, options = {}) {
+		const opshash = Options.hash(options);
+		if (!options.suffix && hash !== false) {
+			options.suffix = opshash;
 		}
 
-		function renderDependency (depName) {
-			const [ type, alias ] = depName.split('=');
-			const ops = { ...options, [type]: { alias } };
-			const { name, schema, requires } = formatter.format(type, ops);
-			included[name] = schema;
-			requires.forEach(renderDependency);
-			return name;
-		}
+		formatter.options.invoked(options);
+		const name = formatter.options.descend(typeName, () => {
+			const fragment = formatter._formatType(typeName, true);
 
-		return '... ' + renderDependency(typeName);
+			if (fragment.schema) {
+				Object.assign(dependencies, fragment.requires);
+				results[fragment.name] = fragment.schema;
+			}
+
+			return fragment.name;
+		});
+
+		return `... ${name}`;
 	}
 
 	Object.defineProperty(inline, 'fragments', {
-		get: () => Object.values(included).join('\n'),
+		get: () => Object.values({ ...dependencies, ...results }).join('\n'),
 	});
 
 	return inline;
 };
-
-exports.hashops = hashops;
