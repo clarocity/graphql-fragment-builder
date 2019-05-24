@@ -15,7 +15,7 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 
 	const typeNames = Object.keys(ast.getTypeMap()).filter((typeName) => {
 		if (ast.getType(typeName) === undefined) return false;
-		if (![ 'GraphQLObjectType', 'GraphQLInterfaceType' ].includes((ast.getType(typeName)).constructor.name)) return false;
+		if (![ 'GraphQLObjectType', 'GraphQLInterfaceType', 'GraphQLUnionType' ].includes((ast.getType(typeName)).constructor.name)) return false;
 		if (typeName.startsWith('__')) return false;
 		if (typeName === (ast.getQueryType()).name) return false;
 
@@ -28,10 +28,18 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 		return true;
 	});
 
-	const interfaceMap = [];
+	const typeFamilyMap = [];
 
 	const fragments = objectReduce(typeNames, (typeName) => {
 		const type = ast.getType(typeName);
+
+		if (type.constructor.name === 'GraphQLUnionType') {
+			return [ typeName, {
+				fields: {},
+				children: type.getTypes().map((t) => t.name),
+			} ];
+		}
+
 		const typeFields = type.getFields();
 		const fields = objectReduce(typeFields, (field, fieldName) => {
 			let constructorName = field.type.constructor.name;
@@ -77,7 +85,7 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 			const details = {
 				type: fieldType,
 				primitive: (constructorName === 'GraphQLScalarType' || constructorName === 'GraphQLEnumType'),
-				nested: (constructorName === 'GraphQLObjectType' || constructorName === 'GraphQLInterfaceType'),
+				nested: (constructorName === 'GraphQLObjectType' || constructorName === 'GraphQLInterfaceType' || constructorName === 'GraphQLUnionType'),
 				// constructorName,
 			};
 
@@ -95,25 +103,26 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 		if (type.constructor.name === 'GraphQLObjectType') {
 			const interfaces = type.getInterfaces();
 			if (interfaces && interfaces.length) {
-				typeDec.implements = interfaces.map((interface) => interface.name);
+				typeDec.parents = interfaces.map((interface) => interface.name);
 				interfaces.forEach((interface) => {
-					interfaceMap.push([ interface.name, typeName ]);
+					typeFamilyMap.push([ interface.name, typeName ]);
 				});
 			}
+
 		}
 
 		return [ typeName, typeDec ];
 	});
 
-	interfaceMap.forEach(([ interfaceName, implementorName ]) => {
-		var interface = fragments[interfaceName];
-		if (!interface) return;
+	typeFamilyMap.forEach(([ parentName, childName ]) => {
+		var parent = fragments[parentName];
+		if (!parent) return;
 
-		if (interface.implementors) {
-			interface.implementors.push(implementorName);
-			interface.implementors.sort();
+		if (parent.children) {
+			parent.children.push(childName);
+			parent.children.sort();
 		} else {
-			interface.implementors = [ implementorName ];
+			parent.children = [ childName ];
 		}
 	});
 

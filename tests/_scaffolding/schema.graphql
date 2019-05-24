@@ -56,6 +56,14 @@ type Client {
     orders: [Order]
 }
 
+type Agent {
+    id: ID!
+    name: String
+    address: Address
+}
+
+union ThirdParty = Client | Agent
+
 type AdminPermissions {
     create: Boolean
     cancel: Boolean

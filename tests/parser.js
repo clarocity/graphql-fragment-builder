@@ -111,7 +111,7 @@ suite('parser', (s) => {
 						'nested': true,
 					},
 				},
-				implements: [ 'User' ],
+				parents: [ 'User' ],
 			},
 			'User': {
 				'fields': {
@@ -140,7 +140,7 @@ suite('parser', (s) => {
 						'nested': false,
 					},
 				},
-				'implementors': [
+				'children': [
 					'AdminUser',
 					'ClientUser',
 				],
@@ -224,7 +224,7 @@ suite('parser', (s) => {
 						'nested': true,
 					},
 				},
-				implements: [ 'User' ],
+				parents: [ 'User' ],
 			},
 			'AdminPermissions': {
 				fields: {
@@ -247,6 +247,35 @@ suite('parser', (s) => {
 						'nested': false,
 					},
 				},
+			},
+			'Agent': {
+				fields: {
+					'id': {
+						'type': 'ID',
+						'resolved': true,
+						'primitive': true,
+						'nested': false,
+					},
+					'name': {
+						'type': 'String',
+						'resolved': true,
+						'primitive': true,
+						'nested': false,
+					},
+					'address': {
+						'type': 'Address',
+						'resolved': true,
+						'primitive': false,
+						'nested': true,
+					},
+				},
+			},
+			'ThirdParty': {
+				'fields': {},
+				'children': [
+					'Client',
+					'Agent',
+				],
 			},
 			'Unused': {
 				'fields': {
@@ -352,7 +381,7 @@ suite('parser', (s) => {
 						'nested': true,
 					},
 				},
-				implements: [ 'User' ],
+				parents: [ 'User' ],
 			},
 			'User': {
 				'fields': {
@@ -377,7 +406,7 @@ suite('parser', (s) => {
 						'nested': false,
 					},
 				},
-				'implementors': [
+				'children': [
 					'AdminUser',
 					'ClientUser',
 				],
@@ -449,7 +478,33 @@ suite('parser', (s) => {
 						'nested': true,
 					},
 				},
-				implements: [ 'User' ],
+				parents: [ 'User' ],
+			},
+			'Agent': {
+				fields: {
+					'id': {
+						'type': 'ID',
+						'primitive': true,
+						'nested': false,
+					},
+					'name': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'address': {
+						'type': 'Address',
+						'primitive': false,
+						'nested': true,
+					},
+				},
+			},
+			'ThirdParty': {
+				'fields': {},
+				'children': [
+					'Client',
+					'Agent',
+				],
 			},
 			'AdminPermissions': {
 				fields: {

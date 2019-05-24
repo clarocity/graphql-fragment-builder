@@ -307,6 +307,8 @@ suite('format multiple', (s) => {
 			ClientUser: 'fragment ClientUser on ClientUser {\n  id\n  name\n  email\n  type\n  client { ... Client }\n}',
 			User: 'fragment User on User {\n  ... on AdminUser { ... AdminUser }\n  ... on ClientUser { ... ClientUser }\n}',
 			Order: 'fragment Order on Order {\n  id\n  dateCreated\n  createdby\n  creator { ... User }\n  client { ... Client }\n  status\n  address { ... Address }\n}',
+			Agent: 'fragment Agent on Agent {\n  id\n  name\n  address { ... Address }\n}',
+			ThirdParty: 'fragment ThirdParty on ThirdParty {\n  ... on Client { ... Client }\n  ... on Agent { ... Agent }\n}',
 			Unused: 'fragment Unused on Unused {\n  nothing\n}',
 		}, 'requirement matches');
 	});
@@ -330,6 +332,8 @@ suite('format multiple', (s) => {
 			ClientUser: 'fragment ClientUser on ClientUser {\n  # Origin: ClientUser\n  id\n  name\n  email\n  type\n  client { ... Client }\n}',
 			User: 'fragment User on User {\n  # Origin: User\n  ... on AdminUser { ... AdminUser }\n  ... on ClientUser { ... ClientUser }\n}',
 			Order: 'fragment Order on Order {\n  # Origin: Order\n  id\n  dateCreated\n  createdby\n  creator { ... User }\n  client { ... Client }\n  status\n  address { ... Address }\n}',
+			Agent: 'fragment Agent on Agent {\n  # Origin: Agent\n  id\n  name\n  address { ... Address }\n}',
+			ThirdParty: 'fragment ThirdParty on ThirdParty {\n  # Origin: ThirdParty\n  ... on Client { ... Client }\n  ... on Agent { ... Agent }\n}',
 			Unused: 'fragment Unused on Unused {\n  # Origin: Unused\n  nothing\n}',
 		}, 'requirement matches');
 	});

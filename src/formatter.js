@@ -84,7 +84,7 @@ class Formatter {
 
 			// if the type is an interface, and descendInterfaces isn't enabled,
 			// do not descend.
-			if (descend && typeDec.implementors && !descendInterfaces) {
+			if (descend && typeDec.children && !descendInterfaces) {
 				descend = (
 					(descendInto === true)
 					|| (descendInto && descendInto.includes(type))
@@ -93,8 +93,8 @@ class Formatter {
 
 			if (descend) {
 				const [ list, needs ] = this.options.descend(type, () => {
-					if (typeDec.implementors) {
-						return this._formatInterface(type, typeDec.implementors);
+					if (typeDec.children) {
+						return this._formatInterfaceOrUnion(type, typeDec.children);
 					}
 
 					return this._formatFields(type, typeDec.fields);
@@ -131,7 +131,7 @@ class Formatter {
 		return [ formatted, requires ];
 	}
 
-	_formatInterface (interfaceName, implementorNames) {
+	_formatInterfaceOrUnion (interfaceName, implementorNames) {
 		const {
 			debug,
 			descendInterfaceTypes,
@@ -203,8 +203,8 @@ class Formatter {
 		}
 
 		var [ list, requires ] = (() => {
-			if (typeDec.implementors) {
-				return this._formatInterface(typeName, typeDec.implementors);
+			if (typeDec.children) {
+				return this._formatInterfaceOrUnion(typeName, typeDec.children);
 			}
 
 			return this._formatFields(typeName, typeDec.fields);
