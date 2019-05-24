@@ -1,7 +1,7 @@
 {
   "name": "graphql-fragment-builder",
   "version": "1.0.0",
-  "description": "Set of utilities for generating graphql fragments from schema.",
+  "description": "Utility library for generating GraphQL client fragments from schema.",
   "main": "index.js",
   "scripts": {
     "test": "tap",
@@ -11,14 +11,23 @@
     "graphql",
     "apollo",
     "apolloserver",
+    "apolloclient",
     "fragment",
     "schema"
   ],
   "author": "Jocelyn Badgley <joc@twipped.com> (http://twipped.com/)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clarocity/graphql-fragment-builder.git"
+  },
   "engines": {
     "node": ">=8.14.0"
   },
+  "files": [
+    "index.js",
+    "src"
+  ],
   "devDependencies": {
     "common-tags": "~1.8.0",
     "eslint": "^5.16.0",
