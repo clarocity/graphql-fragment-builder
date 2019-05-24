@@ -1,5 +1,4 @@
 
-const objectReduce = require('./reduce');
 const Options = require('./options');
 
 class Formatter {

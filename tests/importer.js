@@ -102,7 +102,7 @@ suite('formatter', (s) => {
 	});
 
 	s.test('deep fragmenting with renaming', async (t) => {
-		const formatter = new Formatter(parsed, {
+		const formatter = new Formatter(parsed, { // eslint-disable-line no-shadow
 			// disable all automatic inclusions
 			includeResolved: false,
 			includeUnresolved: false,
