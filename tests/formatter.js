@@ -232,6 +232,39 @@ suite('formatter', (s) => {
 		t.deepEquals(result.requires, {}, 'requirement matches');
 	});
 
+	s.test('format for an interface, descending into types based on suboption', async (t) => {
+		const formatter = new Formatter(parsed, {
+			User: {
+				descendInterfaceTypes: true,
+			},
+		});
+		const result = formatter.format('User');
+		const schema = stripIndent`
+			fragment User on User {
+			  ... on AdminUser {
+			    id
+			    name
+			    email
+			    type
+			    permissions {
+			      create
+			      cancel
+			      approve
+			    }
+			  }
+			  ... on ClientUser {
+			    id
+			    name
+			    email
+			    type
+			  }
+			}
+		`;
+		t.equals(result.name, 'User', 'name matches');
+		t.equals(result.schema, schema, 'schema matches');
+		t.deepEquals(result.requires, {}, 'requirement matches');
+	});
+
 	s.test('format for an interface, descending into a single type', async (t) => {
 		const formatter = new Formatter(parsed, {
 			descendInto: [ 'ClientUser' ],
