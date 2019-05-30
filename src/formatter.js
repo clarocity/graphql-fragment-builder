@@ -179,9 +179,12 @@ class Formatter {
 
 		if (debug) {
 			formatted = [
-				`# Origin: ${this.options.tiers.join('->')}`,
+				(debug === true || debug.origin) &&
+					`# Origin: ${this.options.tiers.join('->')}`,
+				(debug === true || debug.blame) &&
+					`# Blame: ${this.options.blame.join(', ')}`,
 				formatted,
-			].join('\n');
+			].filter(Boolean).join('\n');
 		}
 
 		return [ formatted, requires ];
