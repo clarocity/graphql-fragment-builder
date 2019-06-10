@@ -103,9 +103,9 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 		if (type.constructor.name === 'GraphQLObjectType') {
 			const interfaces = type.getInterfaces();
 			if (interfaces && interfaces.length) {
-				typeDec.parents = interfaces.map((interface) => interface.name);
-				interfaces.forEach((interface) => {
-					typeFamilyMap.push([ interface.name, typeName ]);
+				typeDec.parents = interfaces.map(({ name }) => name);
+				interfaces.forEach(({ name }) => {
+					typeFamilyMap.push([ name, typeName ]);
 				});
 			}
 
