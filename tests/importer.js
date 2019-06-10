@@ -69,7 +69,7 @@ suite('formatter', (s) => {
 		`;
 
 		t.strictEqual(fragmentName.slice(0, -6), 'Order');
-		t.strictEqual(fragmentHash, 'A6A72E');
+		t.strictEqual(fragmentHash, '165A26');
 		t.strictEqual(fragmenter.fragments, expectedFragment, 'fragments matched');
 	});
 

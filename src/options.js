@@ -1,6 +1,4 @@
 
-var crypto = require('crypto');
-
 class Options {
 	constructor (base) {
 		if (base && base.alias) {
@@ -113,11 +111,18 @@ class Options {
 
 Options.hash = function (input) {
 	if (!input || Object.keys(input).length === 0) return '';
-	return crypto.createHash('sha256')
-		.update(JSON.stringify(input))
-		.digest('hex')
-		.substr(0, 6)
-		.toUpperCase();
+	if (typeof input !== 'string') {
+		input = JSON.stringify(input);
+	}
+	var hash = 0;
+	var i, chr;
+	if (input.length === 0) return hash;
+	for (i = 0; i < input.length; i++) {
+		chr   = input.charCodeAt(i);
+		hash  = ((hash << 5) - hash) + chr;
+		hash |= 0; // Convert to 32bit integer
+	}
+	return Math.abs(hash).toString(16).substr(0, 6).padStart(6, '0').toUpperCase();
 };
 
 Options.defaults = {
