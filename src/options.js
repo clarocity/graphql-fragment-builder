@@ -98,7 +98,7 @@ class Options {
 		}
 
 		this.blame = blaming && Array.from(Object.entries(blaming),
-			([ key, source ]) => `${key}: ${source}`
+			([ key, source ]) => `${key}: ${source}`,
 		);
 
 		return result;

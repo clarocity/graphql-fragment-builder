@@ -30,12 +30,12 @@
   ],
   "devDependencies": {
     "common-tags": "~1.8.0",
-    "eslint": "^5.16.0",
-    "eslint-config-twipped": "3.0.0",
-    "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-promise": "^4.1.1",
-    "graphql": "14.3.0",
-    "tap": "~13.1.7",
+    "eslint": "~7.4.0",
+    "eslint-config-twipped": "~3.4.0",
+    "eslint-plugin-node": "~11.1.0",
+    "eslint-plugin-promise": "~4.2.1",
+    "graphql": "~15.3.0",
+    "tap": "~14.10.7",
     "tapsuite": "~2.0.1"
   },
   "peerDependencies": {

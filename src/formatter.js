@@ -157,7 +157,7 @@ class Formatter {
 
 			if (descend) {
 				const [ list, needs ] = this.options.descend(typeName, () =>
-					this._formatFields(typeName, typeDec.fields)
+					this._formatFields(typeName, typeDec.fields),
 				);
 
 				Object.assign(requires, needs);
@@ -253,7 +253,7 @@ class Formatter {
 
 		this.options.invoked(options);
 		return this.options.descend(typeName, () =>
-			this._formatType(typeName)
+			this._formatType(typeName),
 		);
 	}
 
@@ -269,7 +269,7 @@ class Formatter {
 					Object.assign(dependencies, fragment.requires);
 					results[fragment.name] = fragment.schema;
 				}
-			})
+			}),
 		);
 
 		if (combined !== false) return { ...dependencies, ...results };

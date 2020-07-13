@@ -35,7 +35,7 @@ const Date = new GraphQLScalarType({
 
 exports.typeDefs = fs.readFileSync(
 	path.resolve(__dirname, 'schema.graphql'),
-	{ encoding: 'utf8' }
+	{ encoding: 'utf8' },
 );
 
 // None of these resolvers are actually going to be invoked,

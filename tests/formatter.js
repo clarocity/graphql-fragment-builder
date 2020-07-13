@@ -361,7 +361,7 @@ suite('format multiple', (s) => {
 			AdminPermissions: 'fragment AdminPermissions on AdminPermissions {\n  # Origin: AdminPermissions\n  create\n  cancel\n  approve\n}',
 			AdminUser: 'fragment AdminUser on AdminUser {\n  # Origin: AdminUser\n  id\n  name\n  email\n  type\n  permissions { ... AdminPermissions }\n}',
 			Address: 'fragment Address on Address {\n  # Origin: Address\n  address1\n  address2\n  city\n  state\n  zip\n}',
-			ClientAddress: 'fragment ClientAddress on Address {\n  # Origin: Client->Address\n  city\n  state\n  zip\n}',
+			ClientAddress: 'fragment ClientAddress on Address {\n  # Origin: Order->User->ClientUser->Client->Address\n  city\n  state\n  zip\n}',
 			Client: 'fragment Client on Client {\n  # Origin: Client\n  id\n  name\n  address { ... ClientAddress }\n  users { ... ClientUser }\n  orders { ... Order }\n}',
 			ClientUser: 'fragment ClientUser on ClientUser {\n  # Origin: ClientUser\n  id\n  name\n  email\n  type\n  client { ... Client }\n}',
 			User: 'fragment User on User {\n  # Origin: User\n  ... on AdminUser { ... AdminUser }\n  ... on ClientUser { ... ClientUser }\n}',
