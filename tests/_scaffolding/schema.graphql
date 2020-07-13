@@ -91,10 +91,19 @@ extend type Query {
     Order(id: ID!): Order
 }
 
+input AddressInput {
+    address1: String!
+    address2: String
+    city: String
+    state: String
+    zip: String!
+}
+
 type Mutation {
     createOrder (
         by: ID!
         for: ID!
+        address: AddressInput
     ): Order
     changeOrderStatus(id: ID!, status: OrderStatus!): Order
 }

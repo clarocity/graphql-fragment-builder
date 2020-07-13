@@ -15,7 +15,7 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 
 	const typeNames = Object.keys(ast.getTypeMap()).filter((typeName) => {
 		if (ast.getType(typeName) === undefined) return false;
-		if (![ 'GraphQLObjectType', 'GraphQLInterfaceType', 'GraphQLUnionType' ].includes((ast.getType(typeName)).constructor.name)) return false;
+		if (![ 'GraphQLObjectType', 'GraphQLInputObjectType', 'GraphQLInterfaceType', 'GraphQLUnionType' ].includes((ast.getType(typeName)).constructor.name)) return false;
 		if (typeName.startsWith('__')) return false;
 		if (typeName === (ast.getQueryType()).name) return false;
 
@@ -85,7 +85,7 @@ module.exports = exports =  function generateFragmentData (typeDefs, resolvers) 
 			const details = {
 				type: fieldType,
 				primitive: (constructorName === 'GraphQLScalarType' || constructorName === 'GraphQLEnumType'),
-				nested: (constructorName === 'GraphQLObjectType' || constructorName === 'GraphQLInterfaceType' || constructorName === 'GraphQLUnionType'),
+				nested: ([ 'GraphQLObjectType', 'GraphQLInputObjectType', 'GraphQLInterfaceType', 'GraphQLUnionType' ].includes(constructorName) ),
 				// constructorName,
 			};
 

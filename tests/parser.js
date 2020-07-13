@@ -191,6 +191,40 @@ suite('parser', (s) => {
 					},
 				},
 			},
+			'AddressInput': {
+				'fields': {
+					'address1': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+						'resolved': true,
+					},
+					'address2': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+						'resolved': true,
+					},
+					'city': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+						'resolved': true,
+					},
+					'state': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+						'resolved': true,
+					},
+					'zip': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+						'resolved': true,
+					},
+				},
+			},
 			'AdminUser': {
 				fields: {
 					'id': {
@@ -479,6 +513,35 @@ suite('parser', (s) => {
 					},
 				},
 				parents: [ 'User' ],
+			},
+			'AddressInput': {
+				'fields': {
+					'address1': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'address2': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'city': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'state': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+					'zip': {
+						'type': 'String',
+						'primitive': true,
+						'nested': false,
+					},
+				},
 			},
 			'Agent': {
 				fields: {
