@@ -321,6 +321,26 @@ suite('parser', (s) => {
 					},
 				},
 			},
+			'Recursive': {
+				fields: {
+					into: {
+						type: 'Recursive',
+						primitive: false,
+						nested: true,
+						resolved: true,
+					},
+				},
+			},
+			RecursiveContainer: {
+				fields: {
+					holding: {
+						type: 'Recursive',
+						primitive: false,
+						nested: true,
+						resolved: true,
+					},
+				},
+			},
 		});
 	});
 
@@ -594,6 +614,24 @@ suite('parser', (s) => {
 						'type': 'Int',
 						'primitive': true,
 						'nested': false,
+					},
+				},
+			},
+			'Recursive': {
+				fields: {
+					into: {
+						type: 'Recursive',
+						primitive: false,
+						nested: true,
+					},
+				},
+			},
+			RecursiveContainer: {
+				fields: {
+					holding: {
+						type: 'Recursive',
+						primitive: false,
+						nested: true,
 					},
 				},
 			},

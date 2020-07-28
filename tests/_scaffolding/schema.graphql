@@ -107,3 +107,11 @@ type Mutation {
     ): Order
     changeOrderStatus(id: ID!, status: OrderStatus!): Order
 }
+
+type Recursive {
+    into: [Recursive]
+}
+
+type RecursiveContainer {
+    holding: Recursive
+}

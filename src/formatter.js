@@ -71,7 +71,7 @@ class Formatter {
 				|| (descendInto && (
 					descendInto.includes(type) || descendInto.includes(fieldName)
 				))
-			) && descendInto !== false;
+			) && descendInto !== false && this.options.recursiveSafe(type);
 
 			if (descend && !typeDec) {
 				if (!ignoreUnknownTypes) {

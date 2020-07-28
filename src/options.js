@@ -16,6 +16,10 @@ class Options {
 		this.history = {};
 	}
 
+	recursiveSafe (tier) {
+		return !this.tiers.includes(tier);
+	}
+
 	invoked (opts) {
 		if (opts && opts.alias) {
 			throw new Error('The "alias" option can only be used for targeted class overrides.');

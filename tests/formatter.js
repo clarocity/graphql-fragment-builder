@@ -288,6 +288,27 @@ suite('formatter', (s) => {
 		}, 'requirement matches');
 	});
 
+	s.test('descending into recursive', async (t) => {
+		const formatter = new Formatter(parsed, {
+			includeUnresolved: true,
+			includeResolved: true,
+			descendInto: [ 'Recursive' ],
+		});
+		const result = formatter.format('RecursiveContainer');
+		const schema = stripIndent`
+			fragment RecursiveContainer on RecursiveContainer {
+			  holding {
+			    into { ... Recursive }
+			  }
+			}
+		`;
+		t.equals(result.name, 'RecursiveContainer', 'name matches');
+		t.equals(result.schema, schema, 'schema matches');
+		t.deepEquals(result.requires, {
+			Recursive: 'fragment Recursive on Recursive {\n  into { ... Recursive }\n}',
+		}, 'requirement matches');
+	});
+
 });
 
 suite('formatter without resolvers', (s) => {
@@ -344,6 +365,8 @@ suite('format multiple', (s) => {
 			AddressInput: 'fragment AddressInput on AddressInput {\n  address1\n  address2\n  city\n  state\n  zip\n}',
 			ThirdParty: 'fragment ThirdParty on ThirdParty {\n  ... on Client { ... Client }\n  ... on Agent { ... Agent }\n}',
 			Unused: 'fragment Unused on Unused {\n  nothing\n}',
+			Recursive: 'fragment Recursive on Recursive {\n  into { ... Recursive }\n}',
+			RecursiveContainer: 'fragment RecursiveContainer on RecursiveContainer {\n  holding { ... Recursive }\n}',
 		}, 'requirement matches');
 	});
 
@@ -370,6 +393,8 @@ suite('format multiple', (s) => {
 			AddressInput: 'fragment AddressInput on AddressInput {\n  # Origin: AddressInput\n  address1\n  address2\n  city\n  state\n  zip\n}',
 			ThirdParty: 'fragment ThirdParty on ThirdParty {\n  # Origin: ThirdParty\n  ... on Client { ... Client }\n  ... on Agent { ... Agent }\n}',
 			Unused: 'fragment Unused on Unused {\n  # Origin: Unused\n  nothing\n}',
+			Recursive: 'fragment Recursive on Recursive {\n  # Origin: Recursive\n  into { ... Recursive }\n}',
+			RecursiveContainer: 'fragment RecursiveContainer on RecursiveContainer {\n  # Origin: RecursiveContainer\n  holding { ... Recursive }\n}',
 		}, 'requirement matches');
 	});
 
